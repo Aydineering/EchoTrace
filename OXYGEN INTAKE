@@ -35,8 +35,6 @@ def classify_heart_rate(heart_rate, normal_range):
     else:
         return "Normal Heart Rate"
 
-
-# Main program
 try:
     animal_id, species, heart_rate = get_heart_rate()
     normal_range = get_species_normal_range(species)
