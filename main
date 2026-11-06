@@ -1,0 +1,76 @@
+# Set of dummy data to replicate getting data from the sticker
+dummy_data = [  # BodyTemp, Heartrate and Oxygen, TO BE ADDED location, battery status, and stress
+    (36.4, 98, 90),
+    (30.9, 98, 92),
+    (37.2, 98, 100),
+    (38.0, 98, 99),
+    (32.8, 98, 98),
+    (35.4, 98, 94),
+    (31.4, 98, 95),
+]
+
+species_ranges = {
+    # 1-2 Bodytemp range, 3-4 heartrate range, 5-6 oxygen range
+    "Orangutan": (36.1, 36.5, 70, 120, 10, 20), '''Rewrite oxygen data later'''
+    "Tapirus": (36.0, 37.0, 40, 70, 10, 20),
+    "Elephant": (36.0, 36.9, 25, 45, 10, 20),
+    "Tiger": (37.8, 39.4, 60, 100, 10, 20),
+    "Pangolin": (31.7, 34.2, 50, 100, 10, 20)
+}
+
+
+def check_oxygen(oxygen, o2_min, o2_max): # Rewrite this with the correct oxygen status levels later
+    if oxygen < o2_min or oxygen > o2_max:
+        return "danger" # Make sure to return "string", this will be used to on output later
+    return "normal"
+
+def check_bodytemp(body_temp, bt_min, bt_max): # Rewrite this with the correct bodytemp status levels later
+    if body_temp < bt_min or body_temp > bt_max:
+        return "danger"
+    return "normal"
+
+
+def check_heartrate(heart_rate, hr_min, hr_max): # Rewrite this with the correct heart rate status levels later
+    if heart_rate < hr_min or heart_rate > hr_max:
+        return "danger"
+    return "normal"
+
+      # Processes dummy sticker data
+def process_data(species, dataset):
+    range_data = species_ranges.get(species)
+    if not range_data:
+        return None # Returns nothing if range data isnt availaible(they didnt enter avalaible animal species)
+
+    bt_min, bt_max, hr_min, hr_max, o2_min, o2_max = range_data # Store the species range into these variables
+    results = [] # Creates a list for our results 
+
+    # You still need this loop to unpack each sensor reading
+    for body_temp, heart_rate, oxygen in dataset:
+        temp_status = check_bodytemp(body_temp, bt_min, bt_max) # You guys have to work on the function "check_bodytemp" later
+        hr_status = check_heartrate(heart_rate, hr_min, hr_max) # You guys have to work on the function "check_heartrate" later
+        o2_status = check_oxygen(oxygen, o2_min, o2_max) # Check_oxygen is a FUNCTION used to calculate oxygen status(high/low/normal etc)
+        # If you want to add additional feature, like for example stress status, just copy the above format and make a function check_stress 
+
+        results.append((body_temp, temp_status, heart_rate, hr_status, oxygen, o2_status))
+
+    return results # This will return the result for each variables in results.append the results will be used when process_data function is called
+
+
+    # Program Loop: Keeps prompting until ID is '0'
+    # You can just ignore this for now, but its basically to get what animal the user wants tracked - Aydin
+def main():
+    while True:
+        animal_id = input("Enter Animal ID (or 0 to exit): ")
+        if animal_id == "0":
+            break
+
+        species = input("Enter animal species: ").strip().title()
+
+        if species not in species_ranges:
+            continue
+
+        # 
+        evaluation_results = process_data(species, dummy_data)
+
+if __name__ == "__main__":
+    main()
