@@ -11,7 +11,7 @@ dummy_data = [  # BodyTemp, Heartrate and Oxygen, TO BE ADDED location, battery 
 
 species_ranges = {
     # 1-2 Bodytemp range, 3-4 heartrate range, 5-6 oxygen range
-    "Orangutan": (36.1, 36.5, 70, 120, 10, 20), '''Rewrite oxygen data later'''
+    "Orangutan": (36.1, 36.5, 70, 120, 10, 20), # '''Rewrite oxygen data later'''
     "Tapirus": (36.0, 37.0, 40, 70, 10, 20),
     "Elephant": (36.0, 36.9, 25, 45, 10, 20),
     "Tiger": (37.8, 39.4, 60, 100, 10, 20),
@@ -36,41 +36,52 @@ def check_heartrate(heart_rate, hr_min, hr_max): # Rewrite this with the correct
     return "normal"
 
       # Processes dummy sticker data
-def process_data(species, dataset):
+def process_dummy(species, dataset):
     range_data = species_ranges.get(species)
-    if not range_data:
-        return None # Returns nothing if range data isnt availaible(they didnt enter avalaible animal species)
 
-    bt_min, bt_max, hr_min, hr_max, o2_min, o2_max = range_data # Store the species range into these variables
-    results = [] # Creates a list for our results 
+    bt_min, bt_max, hr_min, hr_max, o2_min, o2_max = range_data # Range data is the data of a particular species from "species range"
+    body_temp, heart_rate, oxygen = dataset # Add variables you need for you functions here
 
-    # You still need this loop to unpack each sensor reading
-    for body_temp, heart_rate, oxygen in dataset:
-        temp_status = check_bodytemp(body_temp, bt_min, bt_max) # You guys have to work on the function "check_bodytemp" later
-        hr_status = check_heartrate(heart_rate, hr_min, hr_max) # You guys have to work on the function "check_heartrate" later
-        o2_status = check_oxygen(oxygen, o2_min, o2_max) # Check_oxygen is a FUNCTION used to calculate oxygen status(high/low/normal etc)
-        # If you want to add additional feature, like for example stress status, just copy the above format and make a function check_stress 
+    # This will return values to be used in output later
+    # They get bodytemp,heartrate and oxygen value from 'dataset' above, add more if needed
+    temp_status = check_bodytemp(body_temp, bt_min, bt_max)
+    hr_status = check_heartrate(heart_rate, hr_min, hr_max)
+    o2_status = check_oxygen(oxygen, o2_min, o2_max) # This function will collect the oxygen status from check_oxygen function
+    # Add more functions here
 
-        results.append((body_temp, temp_status, heart_rate, hr_status, oxygen, o2_status))
 
-    return results # This will return the result for each variables in results.append the results will be used when process_data function is called
+    return (body_temp, temp_status, heart_rate, hr_status, oxygen, o2_status) # Return function statuses and variable data(bodytemp oxygen etc)
 
 
     # Program Loop: Keeps prompting until ID is '0'
     # You can just ignore this for now, but its basically to get what animal the user wants tracked - Aydin
 def main():
+    current_index = 0 # This will determine what tuple we will use from dummy data
+
     while True:
-        animal_id = input("Enter Animal ID (or 0 to exit): ")
+        animal_id = input("\nEnter Animal ID (or 0 to exit): ").strip()
         if animal_id == "0":
+            print("Exiting program.")
             break
 
         species = input("Enter animal species: ").strip().title()
 
         if species not in species_ranges:
+            print(f"Species '{species}' not recognized. Try again.")
             continue
 
-        # 
-        evaluation_results = process_data(species, dummy_data)
+        # Extract current reading and evaluate
+        selected_reading = dummy_data[current_index]
+        result = process_dummy(species, selected_reading)
+
+        body_temp, temp_status, hr, hr_status, oxygen, o2_status = result 
+
+        # I am using this to test our code - Aydin
+        print(f"--- Oxygen Report for {species} (ID: {animal_id}) ---")
+        print(f"Oxygen Reading: {oxygen} -> Status: {o2_status}")
+
+        # Cycle to the next tuple in our dummy data list
+        current_index = (current_index + 1) % len(dummy_data)
 
 if __name__ == "__main__":
     main()
