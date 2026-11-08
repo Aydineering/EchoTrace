@@ -1,89 +1,213 @@
 # Set of dummy data to replicate getting data from the sticker
-dummy_data = [  # BodyTemp, Heartrate and Oxygen, TO BE ADDED location, battery status, and stress
-    (36.4, 98, 90),
-    (30.9, 98, 92),
-    (37.2, 98, 100),
-    (38.0, 98, 99),
-    (32.8, 98, 98),
-    (35.4, 98, 94),
-    (31.4, 98, 95),
+dummy_data = [  # BodyTemp, Heartrate, Oxygen, Battery Percentage, Charging Status, Stress, Latitude, Longitude
+    (36.4, 98, 90, 78, 1, 72, 4.3821, 102.3215),
+    (30.9, 20, 92, 27, 1, 43, 7.6541, 83.4122),
+    (37.2, 35, 100, 12, 0, 12, 6.0293, 100.0420),
+    (38.0, 100, 87, 87, 0, 19, 76.8124, 58.1111),
+    (32.8, 92, 98, 99, 0, 89, 12.6767, 67.6767),
+    (35.4, 75, 91, 40, 1, 56, 10.3241, 112.4150),
+    (31.4, 53, 95, 100, 0, 67, 8.9902, 99.9452),
 ]
 
 species_ranges = {
-    # 1-2 Bodytemp range, 3-4 heartrate range, 5-6 oxygen range
-    "Orangutan": (36.1, 36.5, 70, 120, 10, 20), # '''Rewrite oxygen data later'''
-    "Tapirus": (36.0, 37.0, 40, 70, 10, 20),
-    "Elephant": (36.0, 36.9, 25, 45, 10, 20),
-    "Tiger": (37.8, 39.4, 60, 100, 10, 20),
-    "Pangolin": (31.7, 34.2, 50, 100, 10, 20)
+    # 0-1 Bodytemp range, 2-3 heartrate range
+    "orangutan": (36.1, 36.5, 70, 120),
+    "tapirus": (36.0, 37.0, 40, 70),
+    "elephant": (36.0, 36.9, 25, 45),
+    "tiger": (37.8, 39.4, 60, 100),
+    "pangolin": (31.7, 34.2, 50, 100)
 }
-
-
-def check_oxygen(oxygen, o2_min, o2_max): # Rewrite this with the correct oxygen status levels later
-    if oxygen < o2_min or oxygen > o2_max:
-        return "danger" # Make sure to return "string", this will be used to on output later
-    return "normal"
-
-def check_bodytemp(body_temp, bt_min, bt_max): # Rewrite this with the correct bodytemp status levels later
-    if body_temp < bt_min or body_temp > bt_max:
-        return "danger"
-    return "normal"
-
-
-def check_heartrate(heart_rate, hr_min, hr_max): # Rewrite this with the correct heart rate status levels later
-    if heart_rate < hr_min or heart_rate > hr_max:
-        return "danger"
-    return "normal"
-
-      # Processes dummy sticker data
+        
 def process_dummy(species, dataset):
     range_data = species_ranges.get(species)
 
-    bt_min, bt_max, hr_min, hr_max, o2_min, o2_max = range_data # Range data is the data of a particular species from "species range"
-    body_temp, heart_rate, oxygen = dataset # Add variables you need for you functions here
+    temp_min, temp_max, hr_min, hr_max = range_data # Range data is the data of a particular species from "species range"
+    body_temp, heart_rate, oxygen, battery_percentage, charging_status, stress_index, latitude, longitude = dataset
 
     # This will return values to be used in output later
-    # They get bodytemp,heartrate and oxygen value from 'dataset' above, add more if needed
-    temp_status = check_bodytemp(body_temp, bt_min, bt_max)
+    temp_status = check_bodytemp(body_temp, temp_min, temp_max)
     hr_status = check_heartrate(heart_rate, hr_min, hr_max)
-    o2_status = check_oxygen(oxygen, o2_min, o2_max) # This function will collect the oxygen status from check_oxygen function
-    # Add more functions here
+    oxygen_status = check_oxygen(oxygen)
+    stress_status = check_stress(stress_index)
+    risk_status = check_risk(body_temp, temp_min, temp_max, heart_rate, hr_min, hr_max, oxygen, stress_index)
+    battery_status = check_battery(battery_percentage, charging_status)
+    gel_status = cool_gel(body_temp, temp_max)
+    actions = get_action_plan(risk_status)
+    # Return function statuses and variable data(bodytemp oxygen etc)
+    return (body_temp, temp_status, heart_rate, hr_status, oxygen, oxygen_status, battery_status, stress_status, latitude, longitude, risk_status, gel_status, actions) 
 
+# Calculate the animal's body temperature status and write the output message
+def check_bodytemp(body_temp, temp_min, temp_max):
+    if (body_temp > temp_max + 1.0) or (body_temp < temp_min - 1.0):
+        return(f"Body Temperature: {body_temp} Celsius [ OVERWHELMING DANGER]")
+    
+    elif (body_temp > temp_max + 0.4) or (body_temp < temp_min - 0.4):
+        return(f"Body Temperature: {body_temp} Celsius [ DANGER ]")
+            
+    elif (body_temp > temp_max) or (body_temp < temp_min):
+        return(f"Body Temperature: {body_temp} Celsius [ MILD ]")
+            
+    else:
+        return(f"Body Temperature: {body_temp} Celsius [ NORMAL ]")    
+        
+# Calculate the animal's heart rate status and format the output
+def check_heartrate(heart_rate, hr_min, hr_max):
+    if (heart_rate < 0):
+        return ("!! Heart Rate Sensor Broken !!")
+    elif (heart_rate > hr_max + 20):
+        return (f"Heart Rate: {heart_rate} BPM [ HIGHLY ELEVATED ]")
+            
+    elif (heart_rate < hr_min - 20):
+        return (f"Heart Rate: {heart_rate} BPM [ CRITICALLY LOW ]")
+            
+    elif (heart_rate > hr_max + 10):
+        return (f"Heart Rate: {heart_rate} BPM [ ELEVATED ]")
+            
+    elif (heart_rate < hr_min - 10):
+        return (f"Heart Rate: {heart_rate} BPM [ LOW ]")
 
-    return (body_temp, temp_status, heart_rate, hr_status, oxygen, o2_status) # Return function statuses and variable data(bodytemp oxygen etc)
+    elif (heart_rate > hr_max):
+        return (f"Heart Rate: {heart_rate} BPM [ SLIGHTLY ELEVATED ]")
+            
+    elif (heart_rate < hr_min):
+        return (f"Heart Rate: {heart_rate} BPM [ SLIGHTLY LOW ]")
 
+    else:
+        return (f"Heart Rate: {heart_rate} BPM [ NORMAL ]")
+            
+# Calculate whether the animal's blood contains sufficient oxygen(risk of hypoxia)
+def check_oxygen(oxygen):
 
-    # Program Loop: Keeps prompting until ID is '0'
-    # You can just ignore this for now, but its basically to get what animal the user wants tracked - Aydin
-def main():
-    current_index = 0 # This will determine what tuple we will use from dummy data
+    if (oxygen < 0):
+        return("!! Oxygen Sensor Broken !!")
+    
+    elif (oxygen > 100):
+        return (f"Oxygen: {oxygen}% [ SENSOR ERROR ]")
+   
+    elif (oxygen >= 95):
+        return (f"Oxygen: {oxygen}% [ NORMAL ]")
 
-    while True:
-        animal_id = input("\nEnter Animal ID (or 0 to exit): ").strip()
-        if animal_id == "0":
-            print("Exiting program.")
-            break
+    elif (oxygen >= 90):
+        return (f"Oxygen: {oxygen}% [ SLIGHTLY LOW ]")
 
-        species = input("Enter animal species: ").strip().title()
+    elif (oxygen >= 85):
+        return (f"Oxygen: {oxygen}% [ LOW ]")
 
-        if species not in species_ranges:
-            print(f"Species '{species}' not recognized. Try again.")
-            continue
+    else:
+        return (f"Oxygen: {oxygen}% [ CRITICALLY LOW ]")
+            
+# Calculate if cooling gel should be released to relieve the animal
+def cool_gel(body_temp, temp_max):
+    if body_temp > temp_max:
+        return("Cool gel releasing")
+    return("Cool gel not needed")
 
-        # Get data from current list
+# Check the battery status
+def check_battery(battery_percentage, charging_status):
+    
+    charging_text = ""
+    if (charging_status == 1):
+        charging_text = "Charging"  
+    else: 
+        charging_text = "Not Charging"
+    # Print an alert if battery is low and not charging
+    if (battery_percentage <= 20) and (charging_status == 0):
+        return (f"Battery: {battery_percentage}% | Status: {charging_text} | [! ALERT: Low Battery]")
+    else:
+        return (f"Battery: {battery_percentage}% | Status: {charging_text}")
+
+# Calculate the stress status for the animal
+def check_stress(stress_index):
+    if (stress_index < 0):
+        return("!! Stress Sensor Broken !!")
+    elif stress_index > 70:
+        return(f"Stress Index: {stress_index}%  [! HIGH PANIC ]")
+    elif stress_index > 40:
+        return(f"Stress Index: {stress_index}%  [~ MODERATE ]")
+    else:
+        return(f"Stress Index: {stress_index}%  [+ CALM]")
+
+# Calculate the risk status for the animal
+def check_risk(body_temp, temp_min, temp_max, heart_rate, hr_min, hr_max, oxygen, stress_index):
+
+    if (oxygen >= 95):
+        oxygen_risk = 0
+    elif (oxygen >= 90):
+        oxygen_risk = 40
+    elif (oxygen >= 85):
+        oxygen_risk = 70
+    else:
+        oxygen_risk = 100
+
+    if (body_temp > temp_max + 1.0) or (body_temp < temp_min - 1.0):
+        body_temp_risk = 100
+    elif (body_temp > temp_max + 0.4) or (body_temp < temp_min - 0.4):
+        body_temp_risk = 80
+    elif (body_temp > temp_max) or (body_temp < temp_min):
+        body_temp_risk = 45
+    else:
+        body_temp_risk = 0
+
+    if (heart_rate > hr_max + 20) or (heart_rate < hr_min - 20):
+        heart_rate_risk = 100
+    elif (heart_rate > hr_max + 10) or (heart_rate < hr_min - 10):
+        heart_rate_risk = 70
+    elif (heart_rate > hr_max) or (heart_rate < hr_min):
+        heart_rate_risk = 35
+    else:
+        heart_rate_risk = 0
+
+    risk_index = (oxygen_risk * 0.40) + (body_temp_risk * 0.30) + (heart_rate_risk * 0.15) + (stress_index * 0.15)
+
+    return(risk_index)
+
+# Determine action plan to recommend based on risk status
+def get_action_plan(risk_status):
+    if (risk_status >= 75):
+        return ("Risk Level: CRITICAL | Dispatch immediate veterinary and field rescue unit")
+    elif (risk_status >= 50):
+        return ("Risk Level: HIGH | Deploy field rangers for inspection")
+    elif (risk_status >= 25):
+        return ("Risk Level: MODERATE | Monitor more frequently")
+    else:
+        return ("Risk Level: LOW | Maintain background check")
+
+# This will determine what tuple we will use from dummy data
+current_index = 0
+# This is the code block that will execute our program
+while True:
+    animal_id = input("Enter Animal ID (or 0 to exit): ")
+    if (animal_id == "0"):
+        print("Exiting program.")
+        break
+
+    species = input("Enter animal species: ").lower()
+
+    if (species) in (species_ranges):
         selected_reading = dummy_data[current_index]
         result = process_dummy(species, selected_reading)
 
-        body_temp, temp_status, hr, hr_status, oxygen, o2_status = result # Result is list from line 53
+        (body_temp, temp_status, heart_rate, hr_status, oxygen, oxygen_status, battery_status, stress_status, latitude, longitude, risk_status, gel_status, actions) = result
 
-        # I am using this to test our code - Aydin
-        print(f"--- Oxygen Report for {species} (ID: {animal_id}) ---")
-        print(f"Oxygen Reading: {oxygen} -> Status: {o2_status}")
+        # CREATE THE OUTPUT OVERLAY LATER
+        print()
+        print(f"Animal Selected - {species} | ID - {animal_id}")
+        print()
+        print(f"{temp_status}")
+        print(f"{hr_status}")
+        print(f"{stress_status}")
+        print(f"{oxygen_status}")
+        print(f"{gel_status}") # Make this formatted
+        print(f"{risk_status}") # Make this formatted
+        if (latitude) < (-90) or (longitude) < (-180) or (latitude) > (90) or (longitude) > (180):
+            print("!! GPS Sensor Broken !!")
+        else:
+            print(f"Location: Latitude - {latitude} | Longitude - {longitude}") # Add symbols next to the long/lati
+        print(f"{battery_status}")
 
+        print(f"{actions}")
         # Cycle to the next tuple in our dummy data list
         current_index = (current_index + 1) % len(dummy_data)
 
-if __name__ == "__main__":
-    main()
-
-    ## UPDATE
+    elif (species) not in (species_ranges):
+        print(f"Species '{species}' not recognized, try again.")
