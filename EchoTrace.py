@@ -100,7 +100,7 @@ def check_oxygen(oxygen):
 def cool_gel(body_temp, temp_max):
     if body_temp > temp_max:
         return("Cool gel releasing")
-    return("Cool gel not needed")
+    return("Cool gel on standby")
 
 # Check the battery status
 def check_battery(battery_percentage, charging_status):
@@ -164,13 +164,13 @@ def check_risk(body_temp, temp_min, temp_max, heart_rate, hr_min, hr_max, oxygen
 # Determine action plan to recommend based on risk status
 def get_action_plan(risk_status):
     if (risk_status >= 75):
-        return ("Risk Level: CRITICAL | Dispatch immediate veterinary and field rescue unit")
+        return "Risk Level: CRITICAL |\n| Action Directive: Dispatch immediate veterinary and rescue unit"
     elif (risk_status >= 50):
-        return ("Risk Level: HIGH | Deploy field rangers for inspection")
+        return "Risk Level: HIGH |\n| Action Directive: Deploy field rangers for inspection"
     elif (risk_status >= 25):
-        return ("Risk Level: MODERATE | Monitor more frequently")
+        return "Risk Level: MODERATE |\n| Action Directive: Monitor more frequently"
     else:
-        return ("Risk Level: LOW | Maintain background check")
+        return "Risk Level: LOW |\n| Action Directive: Maintain background check"
 
 # This will determine what tuple we will use from dummy data
 current_index = 0
@@ -188,24 +188,28 @@ while True:
         result = process_dummy(species, selected_reading)
 
         (body_temp, temp_status, heart_rate, hr_status, oxygen, oxygen_status, battery_status, stress_status, latitude, longitude, risk_status, gel_status, actions) = result
-
         # CREATE THE OUTPUT OVERLAY LATER
         print()
-        print(f"Animal Selected - {species} | ID - {animal_id}")
+        print("-" * 50)
+        print("|                  ECHOTRACE                   |")
+        print("-" * 50)
+        print(f"| Animal Selected - {species.upper()} | ID - {animal_id} |")
         print()
-        print(f"{temp_status}")
-        print(f"{hr_status}")
-        print(f"{stress_status}")
-        print(f"{oxygen_status}")
-        print(f"{gel_status}") # Make this formatted
-        print(f"{risk_status}") # Make this formatted
+        print("| - Current Status (LIVE) - |")
+        print(f"| {temp_status} |")
+        print(f"| {hr_status} |")
+        print(f"| {stress_status} |")
+        print(f"| {oxygen_status} |")
+        print(f"| Cooling Gel Status: {gel_status} |") # Make this formatted
+        print(f"| Current Risk Level: {risk_status} |") # Make this formatted
         if (latitude) < (-90) or (longitude) < (-180) or (latitude) > (90) or (longitude) > (180):
-            print("!! GPS Sensor Broken !!")
+            print("| !! GPS Sensor Broken !! |")
         else:
-            print(f"Location: Latitude - {latitude} | Longitude - {longitude}") # Add symbols next to the long/lati
-        print(f"{battery_status}")
+            print(f"| Location: Latitude - {latitude}° N | Longitude - {longitude}° E |") # Add symbols next to the long/lati
+        print(f"| {battery_status} |")
 
-        print(f"{actions}")
+        print(f"| {actions} |")
+        print("-" * 50)
         # Cycle to the next tuple in our dummy data list
         current_index = (current_index + 1) % len(dummy_data)
 
