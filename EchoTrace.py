@@ -213,6 +213,7 @@ while True:
 
         risk_text, action_text = actions
         print(make_line(f"  • {risk_text} "))
+        print(make_line(f" • {action_text}"))
         print("|"+"=" * 70 +"|")
         print()
         # Cycle to the next tuple in our dummy data list
