@@ -164,17 +164,20 @@ def check_risk(body_temp, temp_min, temp_max, heart_rate, hr_min, hr_max, oxygen
 # Determine action plan to recommend based on risk status
 def get_action_plan(risk_status):
     if (risk_status >= 75):
-        return "Risk Level: CRITICAL |\n| Action Directive: Dispatch immediate veterinary and rescue unit"
+        return ("Risk Level: CRITICAL", "Action Directive: Dispatch immediate veterinary and rescue unit")
     elif (risk_status >= 50):
-        return "Risk Level: HIGH |\n| Action Directive: Deploy field rangers for inspection"
+        return ("Risk Level: HIGH", "Action Directive: Deploy field rangers for inspection")
     elif (risk_status >= 25):
-        return "Risk Level: MODERATE |\n| Action Directive: Monitor more frequently"
+        return ("Risk Level: MODERATE", "Action Directive: Monitor more frequently")
     else:
-        return "Risk Level: LOW |\n| Action Directive: Maintain background check"
+        return ("Risk Level: LOW", "Action Directive: Maintain background check")   
+    
 
 # This will determine what tuple we will use from dummy data
 current_index = 0
 # This is the code block that will execute our program
+def make_line(text):
+    return f"| {text:<{68}} |"
 while True:
     animal_id = input("Enter Animal ID (or 0 to exit): ")
     if (animal_id == "0"):
@@ -190,28 +193,29 @@ while True:
         (body_temp, temp_status, heart_rate, hr_status, oxygen, oxygen_status, battery_status, stress_status, latitude, longitude, risk_status, gel_status, actions) = result
         # CREATE THE OUTPUT OVERLAY LATER
         print()
-        print("-" * 50)
-        print("|                  ECHOTRACE                   |")
-        print("-" * 50)
-        print(f"| Animal Selected - {species.upper()} | ID - {animal_id} |")
-        print()
-        print("| - Current Status (LIVE) - |")
-        print(f"| {temp_status} |")
-        print(f"| {hr_status} |")
-        print(f"| {stress_status} |")
-        print(f"| {oxygen_status} |")
-        print(f"| Cooling Gel Status: {gel_status} |") # Make this formatted
-        print(f"| Current Risk Level: {risk_status} |") # Make this formatted
+        print("|"+"=" * 70 +"|")
+        print(make_line("                               ECHOTRACE"))
+        print("|"+"=" * 70 +"|")
+        print(make_line(f" Animal Selected - {species.upper()} | ID - {animal_id} "))
+        print("|"+"=" * 70 +"|")
+        print(make_line(" - Current Status (LIVE) - "))
+        print(make_line(f"  • {temp_status} "))
+        print(make_line(f"  • {hr_status} "))
+        print(make_line(f"  • {stress_status} "))
+        print(make_line(f"  • {oxygen_status} "))
+        print(make_line(f"  • Cooling Gel Status: {gel_status} ")) # Make this formatted
+        print(make_line(f"  • Current Risk Level: {risk_status} ")) # Make this formatted
         if (latitude) < (-90) or (longitude) < (-180) or (latitude) > (90) or (longitude) > (180):
-            print("| !! GPS Sensor Broken !! |")
+            print(make_line(" !! GPS Sensor Broken !! "))
         else:
-            print(f"| Location: Latitude - {latitude}° N | Longitude - {longitude}° E |") # Add symbols next to the long/lati
-        print(f"| {battery_status} |")
+            print(make_line(f"  • Location: Latitude - {latitude}° N | Longitude - {longitude}° E ")) # Add symbols next to the long/lati
+        print(make_line(f"  • {battery_status} "))
 
-        print(f"| {actions} |")
-        print("-" * 50)
+        risk_text, action_text = actions
+        print(make_line(f"  • {risk_text} "))
+        print("|"+"=" * 70 +"|")
+        print()
         # Cycle to the next tuple in our dummy data list
         current_index = (current_index + 1) % len(dummy_data)
-
     elif (species) not in (species_ranges):
         print(f"Species '{species}' not recognized, try again.")
