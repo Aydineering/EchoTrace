@@ -1,5 +1,5 @@
 # Set of dummy data to replicate getting data from the sticker
-dummy_data = [  # BodyTemp, Heartrate, Oxygen, Battery Percentage, Charging Status, Stress, Latitude, Longitude
+sticker_data = [
     (36.4, 98, 90, 78, 1, 72, 4.3821, 102.3215),
     (30.9, 20, 92, 27, 1, 43, 7.6541, 83.4122),
     (37.2, 35, 100, 12, 0, 12, 6.0293, 100.0420),
@@ -7,6 +7,7 @@ dummy_data = [  # BodyTemp, Heartrate, Oxygen, Battery Percentage, Charging Stat
     (32.8, 92, 98, 99, 0, 89, 12.6767, 67.6767),
     (35.4, 75, 91, 40, 1, 56, 10.3241, 112.4150),
     (31.4, 53, 95, 100, 0, 67, 8.9902, 99.9452),
+    # BodyTemp, Heartrate, Oxygen, Battery Percentage, Charging Status, Stress, Latitude, Longitude
 ]
 
 species_ranges = {
@@ -18,7 +19,7 @@ species_ranges = {
     "pangolin": (31.7, 34.2, 50, 100)
 }
         
-def process_dummy(species, dataset):
+def process_sticker(species, dataset):
     range_data = species_ranges.get(species)
 
     temp_min, temp_max, hr_min, hr_max = range_data # Range data is the data of a particular species from "species range"
@@ -187,8 +188,8 @@ while True:
     species = input("Enter animal species: ").lower()
 
     if (species) in (species_ranges):
-        selected_reading = dummy_data[current_index]
-        result = process_dummy(species, selected_reading)
+        selected_reading = sticker_data[current_index]
+        result = process_sticker(species, selected_reading)
 
         (body_temp, temp_status, heart_rate, hr_status, oxygen, oxygen_status, battery_status, stress_status, latitude, longitude, risk_status, gel_status, actions) = result
         # CREATE THE OUTPUT OVERLAY LATER
@@ -213,10 +214,10 @@ while True:
 
         risk_text, action_text = actions
         print(make_line(f"  • {risk_text} "))
-        print(make_line(f" • {action_text}"))
+        print(make_line(f"  • {action_text}"))
         print("|"+"=" * 70 +"|")
         print()
         # Cycle to the next tuple in our dummy data list
-        current_index = (current_index + 1) % len(dummy_data)
+        current_index = (current_index + 1) % len(sticker_data)
     elif (species) not in (species_ranges):
         print(f"Species '{species}' not recognized, try again.")
