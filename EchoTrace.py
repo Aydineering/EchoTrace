@@ -174,7 +174,7 @@ def get_action_plan(risk_status):
         return ("Risk Level: LOW", "Action Directive: Maintain background check")   
     
 
-# This will determine what tuple we will use from dummy data
+# This will determine what tuple we will use from sticker data
 current_index = 0
 # This is the code block that will execute our program
 def make_line(text):
